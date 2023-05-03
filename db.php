@@ -21,6 +21,18 @@ body {
   margin: 0;
 }
 
+table {
+  /* overflow: auto; */
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 5px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+  border-top: 3px solid #333;
+}
+
 /* Style the header */
 .header {
   background-color: #f1f1f1;
@@ -94,10 +106,12 @@ use \PhpMqtt\Client\ConnectionSettings;
   $RESPONSE_VALIDATE_USER_TOPIC = "PGL/response/valid_user";
   $REQUEST_VALIDATE_USER_TOPIC = "PGL/request/valid_user";
   $RESPONSE_SEND_EVENTS_TOPIC = "PGL/response/send_events";
+  $RESPONSE_EMERGENCY_TOPIC = 'PGL/response/emergency';
+  $REQUEST_GET_EMERGENCIES_TOPIC = 'PGL/request/get_emergencies';
   $REQUEST_GET_EVENTS_TOPIC = "PGL/request/get_events";
   $hostname = "test.mosquitto.org"; 
   $port = 1883;
-  $clientId = $_SESSION['clientId']; // Change to login username!
+  $clientId = $_SESSION['clientId']; // access session variable updated at login
   $cleanSession = false;
 
   $connectionSettings = (new ConnectionSettings)
@@ -106,25 +120,69 @@ use \PhpMqtt\Client\ConnectionSettings;
  
   $mqtt = new MqttClient($hostname, $port, $clientId);
 
-  // Get Data
+  // Get journey Data
   try {
+    $mqtt->connect($connectionSettings, $cleanSession);
+    
+    $mqtt->subscribe($RESPONSE_EMERGENCY_TOPIC.'/'.$clientId.'/response', function (string $topic, string $message) use ($mqtt, $RESPONSE_EMERGENCY_TOPIC, $clientId) {
+      # Data goes in here!
+      $data = json_decode($message, true);    //decode json data into an array
+
+      // Generate the HTML table code
+      echo '<table style="float: right">';
+      echo '<thead><tr><th>Emergency ID</th><th>Date</th><th>Emergency</th><th>Device ID</th><th>User ID</th></tr></thead>';
+      echo '<tbody>';
+      foreach($data as $event) {
+          echo '<tr>';
+          echo '<td>' . $event['emergency_id'] . '</td>';
+          echo '<td>' . $event['datetime'] . '</td>';
+          echo '<td>' . $event['et'] . '</td>';
+          echo '<td>' . $event['device_id'] . '</td>';
+          echo '<td>' . $event['user_id'] . '</td>';
+          echo '</tr>';
+      }
+      echo '</tbody>';
+      echo '</table>';
+
+      $mqtt->unsubscribe($RESPONSE_EMERGENCY_TOPIC.'/'.$clientId.'/response');
+      $mqtt->disconnect();
+    }, 0);
+
+    $mqtt->publish($REQUEST_GET_EMERGENCIES_TOPIC, $clientId.';', 0, true);
+
+    $mqtt->loop(true);
+
+
+
+  } catch(Exception $e){
+    
+  }  
+
+  // Get emergency Data
+  try {
+    
     $mqtt->connect($connectionSettings, $cleanSession);
     
     $mqtt->subscribe($RESPONSE_SEND_EVENTS_TOPIC.'/'.$clientId.'/response', function (string $topic, string $message) use ($mqtt, $RESPONSE_SEND_EVENTS_TOPIC, $clientId) {
       # Data goes in here!
       $data = json_decode($message, true);    //decode json data into an array
 
-      // present data
-      echo "<pre>";
+      // Generate the HTML table code
+      echo '<table style="float: left">';
+      echo '<thead><tr><th>Emergency ID</th><th>Date</th><th>Emergency</th><th>Device ID</th><th>User ID</th></tr></thead>';
+      echo '<tbody>';
       foreach($data as $event) {
-        echo "Journey_id: " . $event['journey_id'] . "<br>";
-        echo "Date: " . $event['datetime'] . "<br>";
-        echo "Round trip time: " . $event['rtt'] . "<br>";
-        echo "Toilet time: " . $event['tt'] . "<br>";
-        echo "Device_id: " . $event['device_id'] . "<br>";
-        echo "User_id: " . $event['user_id'] . "<br><br>";
+          echo '<tr>';
+          echo '<td>' . $event['journey_id'] . '</td>';
+          echo '<td>' . $event['datetime'] . '</td>';
+          echo '<td>' . $event['rtt'] . '</td>';
+          echo '<td>' . $event['tt'] . '</td>';
+          echo '<td>' . $event['device_id'] . '</td>';
+          echo '<td>' . $event['user_id'] . '</td>';
+          echo '</tr>';
       }
-      echo "</pre>";
+      echo '</tbody>';
+      echo '</table>';
 
       $mqtt->unsubscribe($RESPONSE_SEND_EVENTS_TOPIC.'/'.$clientId.'/response');
       $mqtt->disconnect();
@@ -136,7 +194,7 @@ use \PhpMqtt\Client\ConnectionSettings;
 
   } catch(Exception $e){
     
-  }  
+  } 
  
 ?>
 
