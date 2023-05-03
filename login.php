@@ -67,7 +67,7 @@ body {
 <div class="topnav">
 <ul>
   <a style="float:left" href="/pgl.php">Home</a>
-  <a style="float:left" href="/Journeys.php">Resident</a>
+  <!-- <a style="float:left" href="/Journeys.php">Resident</a> -->
   <a style="float:left" href="/db.php">Database</a>
   <a style="float:right" href="/register.php">Sign up</a>
   <a style="float:right" href="/login.php">Log in</a>
@@ -105,6 +105,11 @@ function test_input($data) {
   return $data;
 }
 
+function redirect($url) {
+  header('Location: '.$url);
+  die();
+}
+
 function validate_user($user, $pass_) {
 
   $RESPONSE_VALIDATE_USER_TOPIC = "PGL/response/valid_user";
@@ -123,14 +128,20 @@ function validate_user($user, $pass_) {
   try {
     $mqtt->connect($connectionSettings, $cleanSession);
     printf("client connected\n");
-
-    $mqtt->subscribe($RESPONSE_VALIDATE_USER_TOPIC.'/'.$clientId, function ($topic, $message, $mqtt) {
-      echo sprintf("Received message on topic [%s]: %s\n", $topic, $message);  
-      $mqtt->interrupt();
-    }, 0);    
-
-      $mqtt->publish($REQUEST_VALIDATE_USER_TOPIC, $user .';'.$pass_.';'.$clientId.';', 0, true);
     
+    // checks if the user is valid
+    $mqtt->subscribe($RESPONSE_VALIDATE_USER_TOPIC.'/'.$clientId.'/response', function ($topic, $message, $mqtt) {
+      echo sprintf("Received message on topic [%s]: %s\n", $topic, $message);  
+
+      if ($message == 'VALID') {  
+        redirect('/db.php');
+        $mqtt->interrupt();
+      }
+
+     
+    }, 0);  
+    $mqtt->publish($REQUEST_VALIDATE_USER_TOPIC, $user .';'.$pass_.';'.$clientId.';', 0, true);
+
     $mqtt->loop(true);
     $mqtt->disconnect();
 
@@ -157,19 +168,7 @@ function validate_user($user, $pass_) {
 
 <?php  
 if(array_key_exists('login_bt', $_POST)) {
-  $validity = validate_user($user, $pass_);
-  echo sprintf("[%s] \n", $validity);
-
-  if ($validity == 'VALID') {
-    echo $validity;
-    include('db.php'); 
-
-  }
-
-  else if($validity == 'INVALID') {
-
-  }
-
+  validate_user($user, $pass_);
 }
 ?>
 

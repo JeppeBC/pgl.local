@@ -66,7 +66,7 @@ body {
 <div class="topnav">
 <ul>
   <a style="float:left" href="/pgl.php">Home</a>
-  <a style="float:left" href="/Journeys.php">Resident</a>
+  <!-- <a style="float:left" href="/Journeys.php">Resident</a> -->
   <a style="float:left" href="/db.php">Database</a>
   <a style="float:right" href="/register.php">Sign up</a>
   <a style="float:right" href="/login.php">Log in</a>
