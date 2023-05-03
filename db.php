@@ -1,5 +1,10 @@
+<?php
+session_start();    //start new session
+?>
+
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>PGL</title>
     <link rel="icon" type="image/x-icon" href="/img/logo.png">
@@ -92,7 +97,7 @@ use \PhpMqtt\Client\ConnectionSettings;
   $REQUEST_GET_EVENTS_TOPIC = "PGL/request/get_events";
   $hostname = "test.mosquitto.org"; 
   $port = 1883;
-  $clientId = "user1"; // Change to login username!
+  $clientId = $_SESSION['clientId']; // Change to login username!
   $cleanSession = false;
 
   $connectionSettings = (new ConnectionSettings)
@@ -105,55 +110,33 @@ use \PhpMqtt\Client\ConnectionSettings;
   try {
     $mqtt->connect($connectionSettings, $cleanSession);
     
-    $mqtt->subscribe($RESPONSE_SEND_EVENTS_TOPIC.'/'.$clientId.'/response', function (string $topic, string $message){
+    $mqtt->subscribe($RESPONSE_SEND_EVENTS_TOPIC.'/'.$clientId.'/response', function (string $topic, string $message) use ($mqtt, $RESPONSE_SEND_EVENTS_TOPIC, $clientId) {
       # Data goes in here!
-      echo sprintf("Received response on topic [%s]\n", $message);
+      $data = json_decode($message, true);    //decode json data into an array
 
-      // look more into decoding json
-      $data = json_decode($message, true);
-      
-      
-      # Print data
-      for ($x = 0; x < $data.count(); $x+=1) {
-        $journey = data[x];
-        $id = strval(journey[0]);
-        $time_stamp = journey[1];
-        $round_trip_time = journey[2];
-        $toilet_time = journey[3];
-
-        echo sprintf("ID: %s, Start time: %s, Roundtrip time: %s, Toilet time: %s \n", $id, $time_stamp, $round_trip_time, $toilet_time);  
+      // present data
+      echo "<pre>";
+      foreach($data as $event) {
+        echo "Journey_id: " . $event['journey_id'] . "<br>";
+        echo "Date: " . $event['datetime'] . "<br>";
+        echo "Round trip time: " . $event['rtt'] . "<br>";
+        echo "Toilet time: " . $event['tt'] . "<br>";
+        echo "Device_id: " . $event['device_id'] . "<br>";
+        echo "User_id: " . $event['user_id'] . "<br><br>";
       }
-      
-      printf("Received response on topic [%s]: %s\r\n", $topic, $message);
+      echo "</pre>";
 
+      $mqtt->unsubscribe($RESPONSE_SEND_EVENTS_TOPIC.'/'.$clientId.'/response');
+      $mqtt->disconnect();
     }, 0);
+
     $mqtt->publish($REQUEST_GET_EVENTS_TOPIC, $clientId.';', 0, true);
 
     $mqtt->loop(true);
-    $mqtt->disconnect();
 
   } catch(Exception $e){
-      echo 'Message: ' .$e->getMessage();
-  }
-
-
-  // Request Data
-  // try{
-
-  //   // https://github.com/php-mqtt/client-examples/blob/master/01_publishing/03_publish_with_qos_2.php
-  //   $mqtt->connect(null, true);
     
-  //   $mqtt->publish($REQUEST_GET_EVENTS_TOPIC, $clientId.';', MqttClient::QOS_EXACTLY_ONCE);
-    
-  //   $mqtt->loop(true, true);
-
-  //   $mqtt->disconnect();
-
-  // }catch(Exception $e){
-  //   echo 'Message: ' .$e->getMessage();
-  // }
-
-  
+  }  
  
 ?>
 

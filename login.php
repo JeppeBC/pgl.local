@@ -1,3 +1,7 @@
+<?php
+session_start();    //start new session
+?>
+
 <!DOCTYPE HTML>  
 <html>
 
@@ -116,37 +120,39 @@ function validate_user($user, $pass_) {
   $REQUEST_VALIDATE_USER_TOPIC = "PGL/request/valid_user";
   $hostname = "test.mosquitto.org"; 
   $port = 1883;
-  $clientId = "login_validater";
+  $_SESSION['clientId'] = $user;
   $cleanSession = false;
 
   $connectionSettings = (new ConnectionSettings)
     ->setKeepAliveInterval(1)
     ->setConnectTimeout(3);
 
-  $mqtt = new MqttClient($hostname, $port, $clientId);
+  $mqtt = new MqttClient($hostname, $port, $_SESSION['clientId']);
 
   try {
     $mqtt->connect($connectionSettings, $cleanSession);
-    printf("client connected\n");
     
     // checks if the user is valid
-    $mqtt->subscribe($RESPONSE_VALIDATE_USER_TOPIC.'/'.$clientId.'/response', function ($topic, $message, $mqtt) {
-      echo sprintf("Received message on topic [%s]: %s\n", $topic, $message);  
+    $mqtt->subscribe($RESPONSE_VALIDATE_USER_TOPIC.'/'.$_SESSION['clientId'].'/response', function ($topic, $message) use ($mqtt) {
 
       if ($message == 'VALID') {  
         redirect('/db.php');
-        $mqtt->interrupt();
+        $mqtt->disconnect();
+      }
+
+      else if($message == 'INVALID') {
+        echo 'Invalid credentials';
+        $mqtt->disconnect();
       }
 
      
     }, 0);  
-    $mqtt->publish($REQUEST_VALIDATE_USER_TOPIC, $user .';'.$pass_.';'.$clientId.';', 0, true);
+    $mqtt->publish($REQUEST_VALIDATE_USER_TOPIC, $user .';'.$pass_.';'.$_SESSION['clientId'].';', 0, true);
 
     $mqtt->loop(true);
-    $mqtt->disconnect();
 
   } catch (Exception $e) {
-    echo sprintf("Error: %s\n", $e->getMessage());
+    // echo sprintf("Error: %s\n", $e->getMessage());
   }
 }
 ?>
