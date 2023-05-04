@@ -13,7 +13,7 @@ session_start();    //start new session
 <html>
 
 <?php
-echo (file_get_contents('templates/main_template.html'));
+include 'templates/main_template.php';
 ?>
 
 <?php
@@ -36,13 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 
-function test_input($data)
-{
-  $data = trim($data);
-  $data = stripslashes($data);
-  return $data;
-}
-
 //function to validate user and redirect to db.php if user is valid
 function validate_user($user, $pass_)
 {
@@ -58,7 +51,7 @@ function validate_user($user, $pass_)
 
     // checks if the user is valid
     $mqtt->subscribe(
-      $GLOBALS['RESPONSE_VALIDATE_USER_TOPIC'] . '/' . $user . '/response',
+      $GLOBALS['RESPONSE_VALIDATE_TOPIC'] . '/' . $user . '/response',
       function ($topic, $message) use ($mqtt, $user) {
 
         if ($message == 'VALID') {

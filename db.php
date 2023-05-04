@@ -10,12 +10,15 @@ session_start();    //start session
 
 ?>
 
+
 <!DOCTYPE html>
-<html>
+<html> 
 
 <?php
-echo (file_get_contents('templates/main_template.html'));
+include 'templates/main_template.php';
 ?>
+
+
 
 <!--Body design-->
 <div class="homebody">
@@ -52,16 +55,16 @@ if ($clientId != null) {
         } else {
           // Generate the HTML table code
           echo '<table style="float: right">';
-          echo '<thead><tr><th>Emergency ID</th><th>Date</th><th>Emergency</th><th>Device ID</th><th>User ID</th></tr></thead>';
+          echo '<thead><tr><th>Emergency ID</th><th>Date</th><th>Emergency time</th><th>Device ID</th><th>User ID</th></tr></thead>';
           echo '<tbody>';
           //access the data and print them in the table
           foreach ($data as $event) {
             echo '<tr>';
-            echo '<td>' . $event['emergency_id'] . '</td>';
-            echo '<td>' . $event['datetime'] . '</td>';
-            echo '<td>' . $event['et'] . '</td>';
-            echo '<td>' . $event['device_id'] . '</td>';
-            echo '<td>' . $event['user_id'] . '</td>';
+            echo '<td style="text-align: center;">'. $event['emergency_id'] . '</td>';
+            echo '<td style="text-align: center;">'. $event['datetime'] . '</td>';
+            echo '<td style="text-align: center;">'. $event['et'] . '</td>';
+            echo '<td style="text-align: center;">'. $event['device_id'] . '</td>';
+            echo '<td style="text-align: center;">'. $event['user_id'] . '</td>';
             echo '</tr>';
           }
           echo '</tbody>';
@@ -95,16 +98,16 @@ if ($clientId != null) {
         } else {
           // Generate the HTML table code
           echo '<table style="float: left">';
-          echo '<thead><tr><th>Emergency ID</th><th>Date</th><th>Emergency</th><th>Device ID</th><th>User ID</th></tr></thead>';
+          echo '<thead><tr><th>Journey ID</th><th>Date</th><th>Round trip time</th><th>Toilet time </th><th>Device ID</th><th>User ID</th></tr></thead>';
           echo '<tbody>';
           foreach ($data as $event) {
             echo '<tr>';
-            echo '<td>' . $event['journey_id'] . '</td>';
-            echo '<td>' . $event['datetime'] . '</td>';
-            echo '<td>' . $event['rtt'] . '</td>';
-            echo '<td>' . $event['tt'] . '</td>';
-            echo '<td>' . $event['device_id'] . '</td>';
-            echo '<td>' . $event['user_id'] . '</td>';
+            echo '<td style="text-align: center;">' . $event['journey_id'] . '</td>';
+            echo '<td style="text-align: center;">' . $event['datetime'] . '</td>';
+            echo '<td style="text-align: center;">' . $event['rtt'] . '</td>';
+            echo '<td style="text-align: center;">' . $event['tt'] . '</td>';
+            echo '<td style="text-align: center;">' . $event['device_id'] . '</td>';
+            echo '<td style="text-align: center;">' . $event['user_id'] . '</td>';
             echo '</tr>';
           }
           echo '</tbody>';

@@ -2,7 +2,10 @@
 <html>
 
 <?php
-echo (file_get_contents('templates/main_template.html'));
+session_start();
+include 'templates/main_template.php';
+
+
 ?>
 
 <!--Main body design -->

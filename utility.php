@@ -7,4 +7,13 @@ function redirect($url) {
     header('Location: '.$url);
     die();
   }
+
+  
+function test_input($data)
+{
+  $data = trim($data);
+  $data = stripslashes($data);
+  return $data;
+}
+
 ?>

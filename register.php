@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'vendor/autoload.php';
 require __DIR__ . '/utility.php';
 require __DIR__ . '/mqtt.php';
@@ -11,7 +12,7 @@ use \PhpMqtt\Client\ConnectionSettings;
 <html>
 
 <?php
-echo (file_get_contents('templates/main_template.html'));
+include 'templates/main_template.php';
 ?>
 
   <?php
@@ -53,13 +54,6 @@ echo (file_get_contents('templates/main_template.html'));
 
   }
 
-  function test_input($data)
-  {
-    $data = trim($data);
-    $data = stripslashes($data);
-    return $data;
-  }
-
   function create_user($user, $pass_, $userType)
   {
 
@@ -76,7 +70,7 @@ echo (file_get_contents('templates/main_template.html'));
 
       // checks if the user is valid
       $mqtt->subscribe(
-        $GLOBALS['RESPONSE_VALIDATE_USER_TOPIC'] . '/' . $user . '/response',
+        $GLOBALS['RESPONSE_VALIDATE_TOPIC'] . '/' . $user . '/response',
         function ($topic, $message) use ($mqtt) {
 
           if ($message == 'VALID') {
@@ -120,7 +114,7 @@ echo (file_get_contents('templates/main_template.html'));
   <?php
   if (array_key_exists('register_bt', $_POST)) {
     if ($user != "" && $pass_ != "" and $userType != "" && 
-    ($userType == 'admin' || $userType == 'resident')) {
+    ($userType == 'caregiver' || $userType == 'resident')) {
       create_user($user, $pass_, $userType);
     }
   }

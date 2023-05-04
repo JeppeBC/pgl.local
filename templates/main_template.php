@@ -14,6 +14,28 @@ body {
   margin: 0;
 }
 
+#session-value {
+			position: fixed;
+			top: 0;
+			right: 0;
+			padding: 10px;
+			background-color: #f1f1f1;
+			font-weight: bold;
+			font-size: 16px;
+}
+
+table {
+  /* overflow: auto; */
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 5px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+  border-top: 3px solid #333;
+}
+
 /* Style the header */
 .header {
   background-color: #f1f1f1;
@@ -52,6 +74,18 @@ body {
 </style>
 </head>
 <body>
+
+<div id="session-value">
+	<?php
+		if (isset($_SESSION['clientId'])) {
+			echo "Currently logged in as: " . $_SESSION['clientId'];
+		}
+    else {
+      echo "Not logged in";
+    }
+	?>
+</div>
+  
 
 <!--Header design-->
 <div class="header">
