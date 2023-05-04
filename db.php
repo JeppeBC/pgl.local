@@ -6,7 +6,8 @@ require __DIR__ . '/mqtt.php';
 use \PhpMqtt\Client\MqttClient;
 use \PhpMqtt\Client\ConnectionSettings;
 
-session_start();    //start new session
+session_start();    //start session
+
 ?>
 
 <!DOCTYPE html>

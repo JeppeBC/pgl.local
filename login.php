@@ -4,6 +4,7 @@ require __DIR__ . '/mqtt.php';
 require('vendor/autoload.php');
 
 session_start();    //start new session
+
 ?>
 
 <!DOCTYPE HTML>
@@ -14,6 +15,8 @@ echo (file_get_contents('templates/main_template.html'));
 ?>
 
 <?php
+
+
 
 use \PhpMqtt\Client\MqttClient;
 use \PhpMqtt\Client\ConnectionSettings;
