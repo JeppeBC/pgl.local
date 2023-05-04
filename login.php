@@ -1,86 +1,19 @@
 <?php
+require __DIR__ . '/utility.php';
+require __DIR__ . '/mqtt.php';
+require('vendor/autoload.php');
+
 session_start();    //start new session
 ?>
 
-<!DOCTYPE HTML>  
+<!DOCTYPE HTML>
 <html>
 
-<head>
-    <title>PGL</title>
-    <link rel="icon" type="image/x-icon" href="/img/logo.png">
-<style>
-    body {background-color: lightgrey;}
-    h1 {color: black;}
-    p {color: black;}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-/* Style the header */
-.header {
-  background-color: #f1f1f1;
-  padding: 20px;
-  text-align: center;  
-}
-
-/* Style the top navigation bar */
-.topnav {
-  overflow: hidden;
-  background-color: #333;
-}
-
-/* Style the topnav links */
-.topnav a {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-/* Change color on hover */
-.topnav a:hover {
-  background-color: #ddd;
-  color: black;
-}
-
-.homebody {
-  background-color: lightgrey;
-  padding: 20px;
-  text-align: center; 
-}
-
-</style>
-</head>
-<body>
-
-<!--Header design-->
-<div class="header">
-<img src="/img/logo.png" alt="PGL" style="float:left;width:100px;height:100px;">
-<h1>Log in to PGL</h1>
-</div>
-
-
-<!--Navigation bar design -->
-<div class="topnav">
-<ul>
-  <a style="float:left" href="/pgl.php">Home</a>
-  <!-- <a style="float:left" href="/Journeys.php">Resident</a> -->
-  <a style="float:left" href="/db.php">Database</a>
-  <a style="float:right" href="/register.php">Sign up</a>
-  <a style="float:right" href="/login.php">Log in</a>
-</ul>
-</div>
+<?php
+echo (file_get_contents('templates/main_template.html'));
+?>
 
 <?php
-
-require('vendor/autoload.php');
 
 use \PhpMqtt\Client\MqttClient;
 use \PhpMqtt\Client\ConnectionSettings;
@@ -95,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   } else {
     $user = test_input($_POST["user"]);
   }
-  
+
   if (empty($_POST["pass_"])) {
     $passErr = "Password is required";
   } else {
@@ -103,56 +36,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 
-function test_input($data) {
+function test_input($data)
+{
   $data = trim($data);
   $data = stripslashes($data);
   return $data;
 }
 
-function redirect($url) {
-  header('Location: '.$url);
-  die();
-}
-
-function validate_user($user, $pass_) {
-
-  $RESPONSE_VALIDATE_USER_TOPIC = "PGL/response/valid_user";
-  $REQUEST_VALIDATE_USER_TOPIC = "PGL/request/valid_user";
-  $hostname = "test.mosquitto.org"; 
-  $port = 1883;
-  $_SESSION['clientId'] = $user;
+//function to validate user and redirect to db.php if user is valid
+function validate_user($user, $pass_)
+{
   $cleanSession = false;
-
   $connectionSettings = (new ConnectionSettings)
     ->setKeepAliveInterval(1)
     ->setConnectTimeout(3);
 
-  $mqtt = new MqttClient($hostname, $port, $_SESSION['clientId']);
+  $mqtt = new MqttClient($GLOBALS['hostname'], $GLOBALS['port'], $user);
 
   try {
     $mqtt->connect($connectionSettings, $cleanSession);
-    
+
     // checks if the user is valid
-    $mqtt->subscribe($RESPONSE_VALIDATE_USER_TOPIC.'/'.$_SESSION['clientId'].'/response', function ($topic, $message) use ($mqtt) {
+    $mqtt->subscribe(
+      $GLOBALS['RESPONSE_VALIDATE_USER_TOPIC'] . '/' . $user . '/response',
+      function ($topic, $message) use ($mqtt, $user) {
 
-      if ($message == 'VALID') {  
-        redirect('/db.php');
-        $mqtt->disconnect();
-      }
-
-      else if($message == 'INVALID') {
-        echo 'Invalid credentials';
-        $mqtt->disconnect();
-      }
-
-     
-    }, 0);  
-    $mqtt->publish($REQUEST_VALIDATE_USER_TOPIC, $user .';'.$pass_.';'.$_SESSION['clientId'].';', 0, true);
+        if ($message == 'VALID') {
+          $_SESSION['clientId'] = $user;                  //set session variable
+          redirect('/db.php');
+          $mqtt->disconnect();
+        } else if ($message == 'INVALID') {
+          echo 'Invalid credentials';
+          $mqtt->disconnect();
+        }
+      },
+      0
+    );
+    $mqtt->publish($GLOBALS['REQUEST_VALIDATE_USER_TOPIC'], $user . ';' . $pass_ . ';' . $_SESSION['clientId'] . ';', 0, true);
 
     $mqtt->loop(true);
-
   } catch (Exception $e) {
-    // echo sprintf("Error: %s\n", $e->getMessage());
   }
 }
 ?>
@@ -160,25 +83,26 @@ function validate_user($user, $pass_) {
 
 <!--Body design-->
 <div class="homebody">
-<h2>Log in</h2>
-<p><span class="error">* required field</span></p>
-<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-  Username: <input type="text" name="user" value="<?php echo $user;?>">
-  <span class="error">* <?php echo $userErr;?></span>
-  <br><br>
-  Password: <input type="text" name="pass_" value="<?php echo $pass_;?>">
-  <span class="error">* <?php echo $passErr;?></span>
-  <br><br>
+  <h2>Log in</h2>
+  <p><span class="error">* required field</span></p>
+  <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+    Username: <input type="text" name="user" value="<?php echo $user; ?>">
+    <span class="error">* <?php echo $userErr; ?></span>
+    <br><br>
+    Password: <input type="text" name="pass_" value="<?php echo $pass_; ?>">
+    <span class="error">* <?php echo $passErr; ?></span>
+    <br><br>
     <input type="submit" name="login_bt" value="Log in">
-</form>
+  </form>
 
-<?php  
-if(array_key_exists('login_bt', $_POST)) {
-  validate_user($user, $pass_);
-}
-?>
+  <?php
+  if (array_key_exists('login_bt', $_POST)) {
+    validate_user($user, $pass_);
+  }
+  ?>
 
 </div>
 
 </body>
+
 </html>

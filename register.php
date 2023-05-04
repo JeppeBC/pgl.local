@@ -1,87 +1,18 @@
+<?php
+require 'vendor/autoload.php';
+require __DIR__ . '/utility.php';
+require __DIR__ . '/mqtt.php';
+
+use \PhpMqtt\Client\MqttClient;
+use \PhpMqtt\Client\ConnectionSettings;
+?>
+
 <!DOCTYPE HTML>
 <html>
 
-<head>
-  <title>PGL</title>
-  <link rel="icon" type="image/x-icon" href="/img/logo.png">
-  <style>
-    body {
-      background-color: lightgrey;
-    }
-
-    h1 {
-      color: black;
-    }
-
-    p {
-      color: black;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-    }
-
-    /* Style the header */
-    .header {
-      background-color: #f1f1f1;
-      padding: 20px;
-      text-align: center;
-    }
-
-    /* Style the top navigation bar */
-    .topnav {
-      overflow: hidden;
-      background-color: #333;
-    }
-
-    /* Style the topnav links */
-    .topnav a {
-      float: left;
-      display: block;
-      color: #f2f2f2;
-      text-align: center;
-      padding: 14px 16px;
-      text-decoration: none;
-    }
-
-    /* Change color on hover */
-    .topnav a:hover {
-      background-color: #ddd;
-      color: black;
-    }
-
-    .homebody {
-      background-color: lightgrey;
-      padding: 20px;
-      text-align: center;
-    }
-  </style>
-</head>
-
-<body>
-
-  <!--Header design-->
-  <div class="header">
-    <img src="/img/logo.png" alt="PGL" style="float:left;width:100px;height:100px;">
-    <h1>Sign up for PGL</h1>
-  </div>
-
-
-  <!--Navigation bar design -->
-  <div class="topnav">
-    <ul>
-      <a style="float:left" href="/pgl.php">Home</a>
-      <!-- <a style="float:left" href="/Journeys.php">Resident</a> -->
-      <a style="float:left" href="/db.php">Database</a>
-      <a style="float:right" href="/register.php">Sign up</a>
-      <a style="float:right" href="/login.php">Log in</a>
-    </ul>
-  </div>
-
+<?php
+echo (file_get_contents('templates/main_template.html'));
+?>
 
   <?php
   // define variables and set to empty values
@@ -94,9 +25,9 @@
     } else {
       $user = test_input($_POST["user"]);
       // check if name only contains letters and whitespace
-      if (!preg_match("/^[a-zA-Z-' ]*$/", $user)) {
-        $userErr = "Only letters and white space allowed";
-      }
+      // if (!preg_match("/^[a-zA-Z-' ]*$/", $user)) {
+      //   $userErr = "Only letters and white space allowed";
+      // }
     }
 
     if (empty($_POST["pass_"])) {
@@ -104,9 +35,9 @@
     } else {
       $pass_ = test_input($_POST["pass_"]);
       // check if name only contains letters and whitespace
-      if (!preg_match("/^[a-zA-Z-' ]*$/", $pass_)) {
-        $passErr = "Only letters and white space allowed";
-      }
+      // if (!preg_match("/^[a-zA-Z-' ]*$/", $pass_)) {
+      //   $passErr = "Only letters and white space allowed";
+      // }
     }
   }
 
@@ -116,64 +47,49 @@
     $data = stripslashes($data);
     return $data;
   }
-  ?>
 
-  <?php
+  require __DIR__ . '/mqtt.php';
 
-require('vendor/autoload.php');
+  function create_user($user, $pass_)
+  {
 
-use \PhpMqtt\Client\MqttClient;
-use \PhpMqtt\Client\ConnectionSettings;
+    $cleanSession = false;
 
-function redirect($url) {
-  header('Location: '.$url);
-  die();
-}
+    $connectionSettings = (new ConnectionSettings)
+      ->setKeepAliveInterval(1)
+      ->setConnectTimeout(3);
 
-function create_user($user, $pass_) {
+    $mqtt = new MqttClient($GLOBALS['hostname'], $GLOBALS['port'], $user);
 
-  $RESPONSE_VALIDATE_USER_TOPIC = "PGL/response/valid_user";
-  $REQUEST_STORE_USER_IN_DB_TOPIC = 'PGL/request/store_user';
-  $hostname = "test.mosquitto.org"; 
-  $port = 1883;
-  $cleanSession = false;
+    try {
+      $mqtt->connect($connectionSettings, $cleanSession);
 
-  $connectionSettings = (new ConnectionSettings)
-    ->setKeepAliveInterval(1)
-    ->setConnectTimeout(3);
+      // checks if the user is valid
+      $mqtt->subscribe(
+        $GLOBALS['RESPONSE_VALIDATE_USER_TOPIC'] . '/' . $user . '/response',
+        function ($topic, $message) use ($mqtt) {
 
-  $mqtt = new MqttClient($hostname, $port, $_SESSION['clientId']);
+          if ($message == 'VALID') {
+            echo 'valid';
+            redirect('/login.php');
+            $mqtt->disconnect();
+          } else if ($message == 'INVALID') {
+            echo 'Invalid credentials';
+            $mqtt->disconnect();
+          }
+        },
+        0
+      );
 
-  try {
-    $mqtt->connect($connectionSettings, $cleanSession);
-    
-    // checks if the user is valid
-    $mqtt->subscribe($RESPONSE_VALIDATE_USER_TOPIC.'/'.$user.'/response', function ($topic, $message) use ($mqtt) {
+      $type = 'user'; //OBS VI SKAL HAVE ET FELT TIL USERTYPE
 
-      if ($message == 'VALID') {  
-        echo 'valid';
-        redirect('/login.php');
-        $mqtt->disconnect();
-      }
+      $mqtt->publish($GLOBALS['REQUEST_STORE_USER_IN_DB_TOPIC'], $user . ';' . $pass_ . ';' . $type . ';', 0, true);
 
-      else if($message == 'INVALID') {
-        echo 'Invalid credentials';
-        $mqtt->disconnect();
-      }
-
-     
-    }, 0);  
-
-    $type = 'user'; //OBS VI SKAL HAVE ET FELT TIL USERTYPE
-
-    $mqtt->publish($REQUEST_STORE_USER_IN_DB_TOPIC, $user .';'.$pass_.';'.$type.';', 0, true);
-
-    $mqtt->loop(true);
-
-  } catch (Exception $e) {
-    // echo sprintf("Error: %s\n", $e->getMessage());
+      $mqtt->loop(true);
+    } catch (Exception $e) {
+      // echo sprintf("Error: %s\n", $e->getMessage());
+    }
   }
-}
   ?>
 
   <div class="homebody">
