@@ -77,7 +77,7 @@ if ($clientId != null) {
       0
     );
 
-    $mqtt->publish($REQUEST_GET_EMERGENCIES_TOPIC, $clientId . ';', 0, true);
+    $mqtt->publish($REQUEST_GET_EMERGENCIES_TOPIC, $clientId . ';', 0, false);
 
     $mqtt->loop(true);
   } catch (Exception $e) {
@@ -120,7 +120,7 @@ if ($clientId != null) {
       0
     );
 
-    $mqtt->publish($REQUEST_GET_EVENTS_TOPIC, $clientId . ';', 0, true);
+    $mqtt->publish($REQUEST_GET_EVENTS_TOPIC, $clientId . ';', 0, false);
 
     $mqtt->loop(true);
   } catch (Exception $e) {

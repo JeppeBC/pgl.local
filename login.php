@@ -65,7 +65,7 @@ function validate_user($user, $pass_)
       },
       0
     );
-    $mqtt->publish($GLOBALS['REQUEST_VALIDATE_USER_TOPIC'], $user . ';' . $pass_ . ';' . $_SESSION['clientId'] . ';', 0, true);
+    $mqtt->publish($GLOBALS['REQUEST_VALIDATE_USER_TOPIC'], $user . ';' . $pass_ . ';' . $_SESSION['clientId'] . ';', 0, false);
 
     $mqtt->loop(true);
   } catch (Exception $e) {

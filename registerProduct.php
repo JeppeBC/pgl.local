@@ -60,7 +60,7 @@ function store_product($user, $deviceId)
             0
         );
 
-        $mqtt->publish($GLOBALS['REQUEST_CREATE_PRODUCT_TOPIC'], $deviceId . ';' . $user . ';', 0, true);
+        $mqtt->publish($GLOBALS['REQUEST_CREATE_PRODUCT_TOPIC'], $deviceId . ';' . $user . ';', 0, false);
 
         $mqtt->loop(true);
     } catch (Exception $e) {

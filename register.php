@@ -85,7 +85,7 @@ include 'templates/main_template.php';
         0
       );
 
-      $mqtt->publish($GLOBALS['REQUEST_STORE_USER_IN_DB_TOPIC'], $user . ';' . $pass_ . ';' . $userType . ';', 0, true);
+      $mqtt->publish($GLOBALS['REQUEST_STORE_USER_IN_DB_TOPIC'], $user . ';' . $pass_ . ';' . $userType . ';', 0, false);
 
       $mqtt->loop(true);
     } catch (Exception $e) {
