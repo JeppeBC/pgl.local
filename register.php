@@ -91,9 +91,7 @@ echo (file_get_contents('templates/main_template.html'));
         0
       );
 
-      $type = $userType; //OBS VI SKAL HAVE ET FELT TIL USERTYPE
-
-      $mqtt->publish($GLOBALS['REQUEST_STORE_USER_IN_DB_TOPIC'], $user . ';' . $pass_ . ';' . $type . ';', 0, true);
+      $mqtt->publish($GLOBALS['REQUEST_STORE_USER_IN_DB_TOPIC'], $user . ';' . $pass_ . ';' . $userType . ';', 0, true);
 
       $mqtt->loop(true);
     } catch (Exception $e) {
