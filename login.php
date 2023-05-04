@@ -2,6 +2,8 @@
 require __DIR__ . '/utility.php';
 require __DIR__ . '/mqtt.php';
 require('vendor/autoload.php');
+use \PhpMqtt\Client\MqttClient;
+use \PhpMqtt\Client\ConnectionSettings;
 
 session_start();    //start new session
 
@@ -15,11 +17,6 @@ echo (file_get_contents('templates/main_template.html'));
 ?>
 
 <?php
-
-
-
-use \PhpMqtt\Client\MqttClient;
-use \PhpMqtt\Client\ConnectionSettings;
 
 // define variables and set to empty values
 $userErr = $passErr = "";
