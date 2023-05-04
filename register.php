@@ -16,8 +16,8 @@ echo (file_get_contents('templates/main_template.html'));
 
   <?php
   // define variables and set to empty values
-  $userErr = $passErr = "";
-  $user = $pass_ = "";
+  $userErr = $passErr = $userTypeErr = "";
+  $user = $pass_ = $userType = "";
 
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($_POST["user"])) {
@@ -39,6 +39,18 @@ echo (file_get_contents('templates/main_template.html'));
       //   $passErr = "Only letters and white space allowed";
       // }
     }
+
+    if (empty($_POST["userType"])) {
+      $userTypeErr = "User type is required";
+    } else {
+      $userType = test_input($_POST["userType"]);
+      // check if name only contains letters and whitespace
+      if (!($userType == 'admin' || $userType == 'resident') ) {
+        $userTypeErr = "Only type admin or resident allowed";
+      }
+    }
+
+
   }
 
   function test_input($data)
@@ -48,9 +60,7 @@ echo (file_get_contents('templates/main_template.html'));
     return $data;
   }
 
-  require __DIR__ . '/mqtt.php';
-
-  function create_user($user, $pass_)
+  function create_user($user, $pass_, $userType)
   {
 
     $cleanSession = false;
@@ -81,7 +91,7 @@ echo (file_get_contents('templates/main_template.html'));
         0
       );
 
-      $type = 'user'; //OBS VI SKAL HAVE ET FELT TIL USERTYPE
+      $type = $userType; //OBS VI SKAL HAVE ET FELT TIL USERTYPE
 
       $mqtt->publish($GLOBALS['REQUEST_STORE_USER_IN_DB_TOPIC'], $user . ';' . $pass_ . ';' . $type . ';', 0, true);
 
@@ -102,14 +112,18 @@ echo (file_get_contents('templates/main_template.html'));
       Password: <input type="text" name="pass_" value="<?php echo $pass_; ?>">
       <span class="error">* <?php echo $passErr; ?></span>
       <br><br>
+      Usertype: <input type="text" name="userType" value="<?php echo $userType; ?>">
+      <span class="error">* <?php echo $userTypeErr; ?></span>
+      <br><br>
       <input type="submit" name="register_bt" value="Register">
     </form>
   </div>
 
   <?php
   if (array_key_exists('register_bt', $_POST)) {
-    if ($user != "" && $pass_ != "") {
-      create_user($user, $pass_);
+    if ($user != "" && $pass_ != "" and $userType != "" && 
+    ($userType == 'admin' || $userType == 'resident')) {
+      create_user($user, $pass_, $userType);
     }
   }
   ?>
