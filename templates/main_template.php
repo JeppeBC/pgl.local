@@ -89,7 +89,7 @@ th, td {
 
 <!--Header design-->
 <div class="header">
-<img src="/img/logo.png" alt="PGL" style="float:left;width:100px;height:100px;">
+<!-- <img src="/img/logo.png" alt="PGL" style="float:left;width:100px;height:100px;"> -->
 <h1>Pigeon Guiding Light</h1>
 </div>
 
