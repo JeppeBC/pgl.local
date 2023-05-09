@@ -55,7 +55,7 @@ if ($clientId != null) {
         } else {
           // Generate the HTML table code
           echo '<table style="float: right">';
-          echo '<thead><tr><th>Emergency ID</th><th>Date</th><th>Emergency time</th><th>Device ID</th><th>User ID</th></tr></thead>';
+          echo '<thead><tr><th>Emergency ID</th><th>Date, Time</th><th>Emergency time</th><th>Device ID</th><th>User ID</th></tr></thead>';
           echo '<tbody>';
           //access the data and print them in the table
           foreach ($data as $event) {
@@ -98,7 +98,7 @@ if ($clientId != null) {
         } else {
           // Generate the HTML table code
           echo '<table style="float: left">';
-          echo '<thead><tr><th>Journey ID</th><th>Date</th><th>Round trip time</th><th>Toilet time </th><th>Device ID</th><th>User ID</th></tr></thead>';
+          echo '<thead><tr><th>Journey ID</th><th>Date, Time</th><th>Round trip time</th><th>Toilet time </th><th>Device ID</th><th>User ID</th></tr></thead>';
           echo '<tbody>';
           foreach ($data as $event) {
             echo '<tr>';
