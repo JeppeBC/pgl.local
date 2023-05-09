@@ -42,15 +42,10 @@ include 'templates/main_template.php';
     }
 
     if (empty($_POST["userType"])) {
-      $userTypeErr = "User type is required";
+      $userTypeErr = "User role is required";
     } else {
       $userType = test_input($_POST["userType"]);
-      // check if name only contains letters and whitespace
-      if (!($userType == 'admin' || $userType == 'resident') ) {
-        $userTypeErr = "Only type admin or resident allowed";
-      }
     }
-
 
   }
 
@@ -104,7 +99,9 @@ include 'templates/main_template.php';
       Password: <input type="text" name="pass_" value="<?php echo $pass_; ?>">
       <span class="error">* <?php echo $passErr; ?></span>
       <br><br>
-      Usertype: <input type="text" name="userType" value="<?php echo $userType; ?>">
+      Role: 
+      <input type="radio" name="userType" <?php if (isset($userType) && $userType=="caregiver") echo "checked";?> value="caregiver"> Caregiver
+      <input type="radio" name="userType" <?php if (isset($userType) && $userType=="resident") echo "checked";?> value="resident"> Resident
       <span class="error">* <?php echo $userTypeErr; ?></span>
       <br><br>
       <input type="submit" name="register_bt" value="Register">

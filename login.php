@@ -39,6 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 //function to validate user and redirect to db.php if user is valid
 function validate_user($user, $pass_)
 {
+  $_SESSION['clientId'] = $user;
   $cleanSession = false;
   $connectionSettings = (new ConnectionSettings)
     ->setKeepAliveInterval(1)
@@ -90,7 +91,12 @@ function validate_user($user, $pass_)
 
   <?php
   if (array_key_exists('login_bt', $_POST)) {
-    validate_user($user, $pass_);
+    if ($_SESSION['clientId'] != $user){
+      validate_user($user, $pass_);
+    }
+    else{
+        echo 'User already logged in';
+    }  
   }
   ?>
 
