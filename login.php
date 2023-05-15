@@ -83,7 +83,7 @@ function validate_user($user, $pass_)
     Username: <input type="text" name="user" value="<?php echo $user; ?>">
     <span class="error">* <?php echo $userErr; ?></span>
     <br><br>
-    Password: <input type="text" name="pass_" value="<?php echo $pass_; ?>">
+    Password: <input type="password" name="pass_" value="<?php echo $pass_; ?>">
     <span class="error">* <?php echo $passErr; ?></span>
     <br><br>
     <input type="submit" name="login_bt" value="Log in">
