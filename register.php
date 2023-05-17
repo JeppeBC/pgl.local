@@ -20,6 +20,7 @@ include 'templates/main_template.php';
   $userErr = $passErr = $userTypeErr = "";
   $user = $pass_ = $userType = "";
 
+  //call error function if user or password are empty and if user type is empty
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($_POST["user"])) {
       $userErr = "Username is required";
@@ -49,6 +50,7 @@ include 'templates/main_template.php';
 
   }
 
+  //function to create new user and redirect to login if user is valid
   function create_user($user, $pass_, $userType)
   {
 
@@ -109,6 +111,7 @@ include 'templates/main_template.php';
   </div>
 
   <?php
+  //if register button is pressed, call create_user function
   if (array_key_exists('register_bt', $_POST)) {
     if ($user != "" && $pass_ != "" and $userType != "" && 
     ($userType == 'caregiver' || $userType == 'resident')) {

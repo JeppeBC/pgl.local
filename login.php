@@ -22,6 +22,7 @@ include 'templates/main_template.php';
 $userErr = $passErr = "";
 $user = $pass_ = "";
 
+//call error function if user or password are empty
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (empty($_POST["user"])) {
     $userErr = "Username is required";
@@ -45,6 +46,7 @@ function validate_user($user, $pass_)
     ->setKeepAliveInterval(1)
     ->setConnectTimeout(3);
 
+  //initialize the MQTT client
   $mqtt = new MqttClient($GLOBALS['hostname'], $GLOBALS['port'], $user);
 
   try {
@@ -76,6 +78,7 @@ function validate_user($user, $pass_)
 
 
 <!--Body design-->
+<!-- Log in form -->
 <div class="homebody">
   <h2>Log in</h2>
   <p><span class="error">* required field</span></p>
@@ -90,6 +93,7 @@ function validate_user($user, $pass_)
   </form>
 
   <?php
+  //call validate_user function if login button is pressed
   if (array_key_exists('login_bt', $_POST)) {
     if ($_SESSION['clientId'] != $user){
       validate_user($user, $pass_);
