@@ -1,5 +1,5 @@
 <?php
-//topics
+//Server topics
 $GLOBALS['RESPONSE_VALIDATE_TOPIC'] = "PGL/response/valid";
 $GLOBALS['RESPONSE_SEND_EVENTS_TOPIC'] = "PGL/response/send_events";
 $GLOBALS['RESPONSE_EMERGENCY_TOPIC'] = 'PGL/response/emergency';

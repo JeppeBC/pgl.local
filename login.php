@@ -50,6 +50,7 @@ function validate_user($user, $pass_)
   $mqtt = new MqttClient($GLOBALS['hostname'], $GLOBALS['port'], $user);
 
   try {
+    // connect to the MQTT broker
     $mqtt->connect($connectionSettings, $cleanSession);
 
     // checks if the user is valid
@@ -58,7 +59,7 @@ function validate_user($user, $pass_)
       function ($topic, $message) use ($mqtt, $user) {
 
         if ($message == 'VALID') {
-          $_SESSION['clientId'] = $user;                  //set session variable
+          $_SESSION['clientId'] = $user;//set session variable
           redirect('/db.php');
           $mqtt->disconnect();
         } else if ($message == 'INVALID') {
@@ -68,6 +69,7 @@ function validate_user($user, $pass_)
       },
       0
     );
+    //publish the user and password to the server
     $mqtt->publish($GLOBALS['REQUEST_VALIDATE_USER_TOPIC'], $user . ';' . $pass_ . ';' . $_SESSION['clientId'] . ';', 0, false);
 
     $mqtt->loop(true);

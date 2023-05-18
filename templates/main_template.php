@@ -1,6 +1,7 @@
+<!-- CSS template for all pages - https://www.w3schools.com/css/css_website_layout.asp -->
 <head>
     <title>PGL</title>
-    <link rel="icon" type="image/x-icon" href="/img/logo.png">
+    <link rel="icon" type="image/x-icon" href="/img/Logo.png">
 <style>
     body {background-color: lightgrey;}
     h1 {color: black;}

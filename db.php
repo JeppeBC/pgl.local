@@ -23,7 +23,7 @@ include 'templates/main_template.php';
 <!--Body design-->
 <div class="homebody">
   <h2>Database</h2>
-  <p>Here you can find all the information about residents </p>
+  <p>Here you can find all the information about residents journeys and emergencies </p>
 </div>
 
 
@@ -83,7 +83,7 @@ if ($clientId != null) {
   } catch (Exception $e) {
   }
 
-  // Get journey Data
+  // Get journey Data and present them in a table
   try {
 
     $mqtt->connect($connectionSettings, $cleanSession);

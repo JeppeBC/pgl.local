@@ -81,7 +81,8 @@ include 'templates/main_template.php';
         },
         0
       );
-
+      
+      // publish the user, password and usertype to the topic
       $mqtt->publish($GLOBALS['REQUEST_STORE_USER_IN_DB_TOPIC'], $user . ';' . $pass_ . ';' . $userType . ';', 0, false);
 
       $mqtt->loop(true);
@@ -91,6 +92,8 @@ include 'templates/main_template.php';
   }
   ?>
 
+  <!-- Sign up body -->
+  <!-- Sign up form -->
   <div class="homebody">
     <h2>Sign up for PGL</h2>
     <p><span class="error">* required field</span></p>

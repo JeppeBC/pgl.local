@@ -27,26 +27,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-
+// function to store a product to an existing user
 function store_product($user, $deviceId)
 {
     $cleanSession = false;
     $connectionSettings = (new ConnectionSettings)
         ->setKeepAliveInterval(1)
         ->setConnectTimeout(3);
-
+        
+    // create a new mqtt client
     $mqtt = new MqttClient($GLOBALS['hostname'], $GLOBALS['port'], $user);
 
     try {
         $mqtt->connect($connectionSettings, $cleanSession);
-
+        
+        // subscribe to the response topic
         $mqtt->subscribe(
             $GLOBALS['RESPONSE_VALIDATE_TOPIC'] . '/' . $user . '/response',
             function ($topic, $message) use ($mqtt, $user) {
-
+                // if the response is valid, echo this
                 if ($message == 'VALID') {
                     echo 'Product registered';
                     $mqtt->disconnect();
+                // if the response is invalid, echo this
                 } else if ($message == 'INVALID') {
 
                     echo '<div style="text-align: center; font-size: 16px; line-height: 1.5;">';
@@ -59,7 +62,8 @@ function store_product($user, $deviceId)
             },
             0
         );
-
+        
+        // publish the request to create a product
         $mqtt->publish($GLOBALS['REQUEST_CREATE_PRODUCT_TOPIC'], $deviceId . ';' . $user . ';', 0, false);
 
         $mqtt->loop(true);
@@ -68,7 +72,7 @@ function store_product($user, $deviceId)
 }
 
 ?>
-
+<!-- Register product form  -->
 <!-- //html to echo if user is logged in -->
 <div class="homebody">
     <h2>Register new product</h2>
@@ -82,10 +86,11 @@ function store_product($user, $deviceId)
 </div>
 
 <?php
+// if user is not logged in, echo this
 if ($_SESSION['clientId'] == null) {
     echo 'You are not logged in';
 } else {
-
+    // if user is logged in, store product
     if (array_key_exists('register_bt', $_POST)) {
         if ($deviceId != "") {
             store_product($_SESSION['clientId'], $deviceId);

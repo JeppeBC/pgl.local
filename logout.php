@@ -15,6 +15,7 @@ session_destroy();   //destroy the session
 
 echo 'You have signed out';
 
+//redirect to login page
 redirect('/login.php');
 
 ?>

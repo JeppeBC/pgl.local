@@ -8,7 +8,7 @@ function redirect($url) {
     die();
   }
 
-  
+// method to trim and Un-quote a quoted string 
 function test_input($data)
 {
   $data = trim($data);
